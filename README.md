@@ -1,15 +1,12 @@
 # bore
 
-[![Build status](https://img.shields.io/github/actions/workflow/status/ekzhang/bore/ci.yml)](https://github.com/ekzhang/bore/actions)
-[![Crates.io](https://img.shields.io/crates/v/bore-cli.svg)](https://crates.io/crates/bore-cli)
+A modern, simple TCP tunnel in JavaScript that exposes local ports to a remote server, bypassing standard NAT connection firewalls. **That's all it does: no more, and no less.**
 
-A modern, simple TCP tunnel in Rust that exposes local ports to a remote server, bypassing standard NAT connection firewalls. **That's all it does: no more, and no less.**
-
-![Video demo](https://i.imgur.com/vDeGsmx.gif)
+This is a complete, wire-compatible port of [`ekzhang/bore`](https://github.com/ekzhang/bore) (v0.6.0) from Rust to TypeScript/Node.js. A `bore-js` client can tunnel through an upstream Rust `bore` server, and a Rust `bore` client can tunnel through a `bore-js` server — the two are interchangeable on both the wire and the command line. See [`docs/MIGRATION.md`](docs/MIGRATION.md) for the full equivalence report.
 
 ```shell
-# Installation (requires Rust, see alternatives below)
-cargo install bore-cli
+# Installation (requires Node.js >= 22.18)
+npm install -g bore-cli-js
 
 # On your local machine
 bore local 8000 --to bore.pub
@@ -19,57 +16,38 @@ This will expose your local port at `localhost:8000` to the public internet at `
 
 Similar to [localtunnel](https://github.com/localtunnel/localtunnel) and [ngrok](https://ngrok.io/), except `bore` is intended to be a highly efficient, unopinionated tool for forwarding TCP traffic that is simple to install and easy to self-host, with no frills attached.
 
-(`bore` totals about 400 lines of safe, async Rust code and is trivial to set up — just run a single binary for the client and server.)
-
 ## Installation
 
-### macOS
-
-`bore` is packaged as a Homebrew core formula.
+### npm
 
 ```shell
-brew install bore-cli
+npm install -g bore-cli-js
 ```
 
-### Linux
-
-#### Arch Linux
-
-`bore` is available in the AUR as `bore`.
+This installs the `bore` executable on your `PATH`. You can also run it without installing:
 
 ```shell
-yay -S bore # or your favorite AUR helper
+npx bore-cli-js local 8000 --to bore.pub
 ```
 
-#### Gentoo Linux
-
-`bore` is available in the [gentoo-zh](https://github.com/microcai/gentoo-zh) overlay.
+### From source
 
 ```shell
-sudo eselect repository enable gentoo-zh
-sudo emerge --sync gentoo-zh
-sudo emerge net-proxy/bore
-```
-
-### Binary Distribution
-
-Otherwise, the easiest way to install bore is from prebuilt binaries. These are available on the [releases page](https://github.com/ekzhang/bore/releases) for macOS, Windows, and Linux. Just unzip the appropriate file for your platform and move the `bore` executable into a folder on your PATH.
-
-### Cargo
-
-You also can build `bore` from source using [Cargo](https://doc.rust-lang.org/cargo/), the Rust package manager. This command installs the `bore` binary at a user-accessible path.
-
-```shell
-cargo install bore-cli
+git clone <this repository>
+cd bore-js
+npm ci
+npm run build
+node dist/main.js --help
 ```
 
 ### Docker
 
-We also publish versioned Docker images for each release. The image is built for an AMD 64-bit architecture. They're tagged with the specific version and allow you to run the statically-linked `bore` binary from a minimal "scratch" container.
-
 ```shell
-docker run -it --init --rm --network host ekzhang/bore <ARGS>
+docker build -t bore-js .
+docker run -it --init --rm --network host bore-js <ARGS>
 ```
+
+Unlike the Rust image, which ships a statically-linked binary in a `scratch` container, this image is based on `node:22-alpine` because a Node program needs its runtime. It still drops to the same unprivileged `USER 1000:1000`.
 
 ## Detailed Usage
 
@@ -131,6 +109,16 @@ Options:
   -h, --help                         Print help
 ```
 
+### Logging
+
+Logging is controlled by the `RUST_LOG` environment variable, using the same syntax and defaults as the Rust build (`tracing_subscriber`'s `Targets` filter, without `env-filter`). Logs are written to standard output.
+
+```shell
+RUST_LOG=bore_cli=debug bore server
+RUST_LOG=trace bore local 8000 --to localhost
+NO_COLOR=1 bore server          # disable ANSI styling
+```
+
 ## Protocol
 
 There is an implicit _control port_ at `7835`, used for creating new connections on demand. At initialization, the client sends a "Hello" message to the server on the TCP control port, asking to proxy a selected remote port. The server then responds with an acknowledgement and begins listening for external TCP connections.
@@ -138,6 +126,14 @@ There is an implicit _control port_ at `7835`, used for creating new connections
 Whenever the server obtains a connection on the remote port, it generates a secure [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) for that connection and sends it back to the client. The client then opens a separate TCP stream to the server and sends an "Accept" message containing the UUID on that stream. The server then proxies the two connections between each other.
 
 For correctness reasons and to avoid memory leaks, incoming connections are only stored by the server for up to 10 seconds before being discarded if the client does not accept them.
+
+Messages are newline-free JSON objects in serde's externally tagged representation, terminated by a single `NUL` (`0x00`) byte, with a maximum frame length of 256 bytes:
+
+```
+{"Hello":8000}\0        {"Challenge":"<uuid>"}\0    "Heartbeat"\0
+{"Accept":"<uuid>"}\0   {"Connection":"<uuid>"}\0   {"Error":"..."}\0
+{"Authenticate":"<hex>"}\0
+```
 
 ## Authentication
 
@@ -153,8 +149,38 @@ bore local <LOCAL_PORT> --to <TO> --secret my_secret_string
 
 If a secret is not present in the arguments, `bore` will also attempt to read from the `BORE_SECRET` environment variable.
 
+The challenge response is `HMAC-SHA256(key = SHA256(secret), message = <the challenge UUID's 16 raw bytes>)`, lowercase hex encoded — byte-for-byte identical to the Rust implementation.
+
+## Library Usage
+
+The package also ships as an ES module with TypeScript declarations.
+
+```ts
+import { Client, Server } from "bore-cli-js";
+
+const server = new Server(1024, 65535, "my secret");
+server.setBindAddr("0.0.0.0");
+void server.listen();
+
+const client = await Client.create("localhost", 8000, "example.com", 0, "my secret");
+console.log(client.remotePort);
+await client.listen();
+```
+
+## Development
+
+```shell
+npm ci
+npm run typecheck
+npm test            # 178 tests: unit, end-to-end, CLI parity, and Rust interop
+```
+
+The test files import the TypeScript sources directly and run under Node's native type stripping, so `node --test "test/*.test.ts"` works without a build step (Node >= 22.18). `npm test` builds first only because the interop suite needs the compiled `dist/main.js` to spawn.
+
+The interop suite drives a real Rust `bore` binary and is skipped automatically when one is not available. Point it at a binary with `BORE_RUST_BIN=/path/to/bore npm run test:interop`.
+
 ## Acknowledgements
 
-Created by Eric Zhang ([@ekzhang1](https://twitter.com/ekzhang1)). Licensed under the [MIT license](LICENSE).
+Original `bore` created by Eric Zhang ([@ekzhang1](https://twitter.com/ekzhang1)). Licensed under the [MIT license](LICENSE).
 
-The author would like to thank the contributors and maintainers of the [Tokio](https://tokio.rs/) project for making it possible to write ergonomic and efficient network services in Rust.
+This port preserves the original's design and protocol exactly; the author of the original would like to thank the contributors and maintainers of the [Tokio](https://tokio.rs/) project, whose primitives the Node.js `stream` and `net` code here stands in for.

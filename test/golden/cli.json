@@ -1,0 +1,232 @@
+{
+  "note": "Captured from bore-cli 0.6.0 (Rust). Regenerate with: npm run golden:cli",
+  "version": "bore-cli 0.6.0",
+  "cases": [
+    {
+      "args": [],
+      "stdout": "",
+      "stderr": "A modern, simple TCP tunnel in Rust that exposes local ports to a remote server, bypassing standard NAT connection firewalls.\n\nUsage: bore <COMMAND>\n\nCommands:\n  local   Starts a local proxy to the remote server\n  server  Runs the remote proxy server\n  help    Print this message or the help of the given subcommand(s)\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "--help"
+      ],
+      "stdout": "A modern, simple TCP tunnel in Rust that exposes local ports to a remote server, bypassing standard NAT connection firewalls.\n\nUsage: bore <COMMAND>\n\nCommands:\n  local   Starts a local proxy to the remote server\n  server  Runs the remote proxy server\n  help    Print this message or the help of the given subcommand(s)\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "-h"
+      ],
+      "stdout": "A modern, simple TCP tunnel in Rust that exposes local ports to a remote server, bypassing standard NAT connection firewalls.\n\nUsage: bore <COMMAND>\n\nCommands:\n  local   Starts a local proxy to the remote server\n  server  Runs the remote proxy server\n  help    Print this message or the help of the given subcommand(s)\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "--version"
+      ],
+      "stdout": "bore-cli 0.6.0\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "-V"
+      ],
+      "stdout": "bore-cli 0.6.0\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "help"
+      ],
+      "stdout": "A modern, simple TCP tunnel in Rust that exposes local ports to a remote server, bypassing standard NAT connection firewalls.\n\nUsage: bore <COMMAND>\n\nCommands:\n  local   Starts a local proxy to the remote server\n  server  Runs the remote proxy server\n  help    Print this message or the help of the given subcommand(s)\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "help",
+        "local"
+      ],
+      "stdout": "Starts a local proxy to the remote server\n\nUsage: bore local [OPTIONS] --to <TO> <LOCAL_PORT>\n\nArguments:\n  <LOCAL_PORT>  The local port to expose [env: BORE_LOCAL_PORT=]\n\nOptions:\n  -l, --local-host <HOST>  The local host to expose [default: localhost]\n  -t, --to <TO>            Address of the remote server to expose local ports to [env: BORE_SERVER=]\n  -p, --port <PORT>        Optional port on the remote server to select [default: 0]\n  -s, --secret <SECRET>    Optional secret for authentication [env: BORE_SECRET]\n  -h, --help               Print help\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "help",
+        "server"
+      ],
+      "stdout": "Runs the remote proxy server\n\nUsage: bore server [OPTIONS]\n\nOptions:\n      --min-port <MIN_PORT>          Minimum accepted TCP port number [env: BORE_MIN_PORT=] [default: 1024]\n      --max-port <MAX_PORT>          Maximum accepted TCP port number [env: BORE_MAX_PORT=] [default: 65535]\n  -s, --secret <SECRET>              Optional secret for authentication [env: BORE_SECRET]\n      --bind-addr <BIND_ADDR>        IP address to bind to, clients must reach this [default: 0.0.0.0]\n      --bind-tunnels <BIND_TUNNELS>  IP address where tunnels will listen on, defaults to --bind-addr\n  -h, --help                         Print help\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "local",
+        "--help"
+      ],
+      "stdout": "Starts a local proxy to the remote server\n\nUsage: bore local [OPTIONS] --to <TO> <LOCAL_PORT>\n\nArguments:\n  <LOCAL_PORT>  The local port to expose [env: BORE_LOCAL_PORT=]\n\nOptions:\n  -l, --local-host <HOST>  The local host to expose [default: localhost]\n  -t, --to <TO>            Address of the remote server to expose local ports to [env: BORE_SERVER=]\n  -p, --port <PORT>        Optional port on the remote server to select [default: 0]\n  -s, --secret <SECRET>    Optional secret for authentication [env: BORE_SECRET]\n  -h, --help               Print help\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "server",
+        "--help"
+      ],
+      "stdout": "Runs the remote proxy server\n\nUsage: bore server [OPTIONS]\n\nOptions:\n      --min-port <MIN_PORT>          Minimum accepted TCP port number [env: BORE_MIN_PORT=] [default: 1024]\n      --max-port <MAX_PORT>          Maximum accepted TCP port number [env: BORE_MAX_PORT=] [default: 65535]\n  -s, --secret <SECRET>              Optional secret for authentication [env: BORE_SECRET]\n      --bind-addr <BIND_ADDR>        IP address to bind to, clients must reach this [default: 0.0.0.0]\n      --bind-tunnels <BIND_TUNNELS>  IP address where tunnels will listen on, defaults to --bind-addr\n  -h, --help                         Print help\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "args": [
+        "bogus"
+      ],
+      "stdout": "",
+      "stderr": "error: unrecognized subcommand 'bogus'\n\nUsage: bore <COMMAND>\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local"
+      ],
+      "stdout": "",
+      "stderr": "error: the following required arguments were not provided:\n  --to <TO>\n  <LOCAL_PORT>\n\nUsage: bore local --to <TO> <LOCAL_PORT>\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local",
+        "3000"
+      ],
+      "stdout": "",
+      "stderr": "error: the following required arguments were not provided:\n  --to <TO>\n\nUsage: bore local --to <TO> <LOCAL_PORT>\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local",
+        "3000",
+        "-t",
+        "x",
+        "extra"
+      ],
+      "stdout": "",
+      "stderr": "error: unexpected argument 'extra' found\n\nUsage: bore local [OPTIONS] --to <TO> <LOCAL_PORT>\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local",
+        "70000",
+        "-t",
+        "x"
+      ],
+      "stdout": "",
+      "stderr": "error: invalid value '70000' for '<LOCAL_PORT>': 70000 is not in 0..=65535\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local",
+        "abc",
+        "-t",
+        "x"
+      ],
+      "stdout": "",
+      "stderr": "error: invalid value 'abc' for '<LOCAL_PORT>': invalid digit found in string\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local",
+        " 5",
+        "-t",
+        "x"
+      ],
+      "stdout": "",
+      "stderr": "error: invalid value ' 5' for '<LOCAL_PORT>': invalid digit found in string\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local",
+        "99999999999999999999",
+        "-t",
+        "x"
+      ],
+      "stdout": "",
+      "stderr": "error: invalid value '99999999999999999999' for '<LOCAL_PORT>': number too large to fit in target type\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local",
+        "1",
+        "-t"
+      ],
+      "stdout": "",
+      "stderr": "error: a value is required for '--to <TO>' but none was supplied\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "local",
+        "--",
+        "-1",
+        "-t",
+        "x"
+      ],
+      "stdout": "",
+      "stderr": "error: unexpected argument '-t' found\n\nUsage: bore local [OPTIONS] --to <TO> <LOCAL_PORT>\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "server",
+        "--nope"
+      ],
+      "stdout": "",
+      "stderr": "error: unexpected argument '--nope' found\n\nUsage: bore server [OPTIONS]\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "server",
+        "--bind-addr",
+        "zzz"
+      ],
+      "stdout": "",
+      "stderr": "error: invalid value 'zzz' for '--bind-addr <BIND_ADDR>': invalid IP address syntax\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "server",
+        "--min-port",
+        "5000",
+        "--max-port",
+        "3000"
+      ],
+      "stdout": "",
+      "stderr": "error: port range is empty\n\nUsage: bore-cli <COMMAND>\n\nFor more information, try '--help'.\n",
+      "code": 2
+    },
+    {
+      "args": [
+        "server",
+        "--min-port",
+        "abc"
+      ],
+      "stdout": "",
+      "stderr": "error: invalid value 'abc' for '--min-port <MIN_PORT>': invalid digit found in string\n\nFor more information, try '--help'.\n",
+      "code": 2
+    }
+  ]
+}

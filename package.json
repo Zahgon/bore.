@@ -1,0 +1,56 @@
+{
+  "name": "bore-cli-js",
+  "version": "0.6.0",
+  "description": "A modern, simple TCP tunnel in JavaScript that exposes local ports to a remote server, bypassing standard NAT connection firewalls.",
+  "keywords": [
+    "network",
+    "cli",
+    "tunnel",
+    "tcp"
+  ],
+  "license": "MIT",
+  "author": "Eric Zhang <ekzhang1@gmail.com>",
+  "contributors": [
+    "bore-cli-js contributors (JavaScript port)"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ekzhang/bore"
+  },
+  "type": "module",
+  "bin": {
+    "bore": "./dist/main.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node -e \"require('fs').chmodSync('dist/main.js', 0o755)\"",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "test": "npm run build && node --test --test-concurrency=1 \"test/*.test.ts\"",
+    "test:unit": "node --test --test-concurrency=1 test/auth.test.ts test/shared.test.ts test/cli.test.ts test/logger.test.ts",
+    "test:e2e": "node --test test/e2e.test.ts",
+    "test:interop": "npm run build && node --test test/interop.test.ts",
+    "prepublishOnly": "npm run build",
+    "golden:cli": "node --disable-warning=ExperimentalWarning scripts/capture-cli-golden.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.2"
+  }
+}

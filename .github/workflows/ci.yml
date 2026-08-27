@@ -2,50 +2,61 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
 
 jobs:
-  rust:
-    name: Build and Test
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["22.18.0", "22", "24"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: node --test --test-concurrency=1 "test/*.test.ts"
+
+  interop:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/setup-node@v4
         with:
-          profile: minimal
-          toolchain: stable
+          node-version: "22"
+          cache: npm
 
-      - run: cargo build --all-features
+      - uses: dtolnay/rust-toolchain@stable
 
-      - run: cargo test
+      - name: Build the reference Rust implementation
+        run: cargo install bore-cli --version 0.6.0 --locked
 
-  rustfmt:
-    name: Rustfmt
+      - run: npm ci
+      - run: npm run build
+
+      - name: Cross-implementation interop tests
+        env:
+          BORE_RUST_BIN: /home/runner/.cargo/bin/bore
+        run: node --test --test-concurrency=1 test/interop.test.ts
+
+  docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          components: rustfmt
-
-      - run: cargo fmt -- --check
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          components: clippy
-
-      - run: cargo clippy -- -D warnings
+      - run: docker build -t bore-js .
+      - run: docker run --rm bore-js --version
